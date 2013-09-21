@@ -78,6 +78,9 @@ var g_okletshavealook="Je me renseigne";
 var g_errornetatmosite="Impossible de joindre Netatmo";
 var g_allisfine="Rien à signaler de particulier";
 
+//////////////////////
+// EMPTY CALLBACK
+//////////////////////
 var init_callback=function(opts)
 {
   return ;
@@ -132,7 +135,11 @@ var getBasic = function(config)
 
 exports.getBasic=getBasic;
 
-var getURL = function(url, data, callback, config, cb)
+////////////////////////
+// PRIVATE FUNCTION
+////////////////////////
+
+var getURL = function(url, data, callback, config, cb, arg)
 {
 	var request = require('request');
 	request(
@@ -141,32 +148,16 @@ var getURL = function(url, data, callback, config, cb)
 				{
 					if (err || response.statusCode != 200) 
 					{
+					  console.log("getURL error:"+response.statusCode);
 					  callback({'tts': g_errornetatmosite});
 					  return -1;
 					}
-					cb (body, data, callback, config);
+					cb (body, data, callback, config, arg);
 				}
 			);
 	return -2;
 }
 
-var getURL2 = function(url, data, callback, config, cb, mod)
-{
-	var request = require('request');
-	request(
-				{'uri': url}
-				, function (err, response, body)
-				{
-					if (err || response.statusCode != 200) 
-					{
-					  callback({'tts': g_errornetatmosite});
-					  return -1;
-					}
-					cb (body, data, callback, config, mod);
-				}
-			);
-	return -2;
-}
 var getToken = function(url, username, password, id, secret, data, callback, config)
 {
 	var request = require('request');
@@ -187,7 +178,7 @@ var getToken = function(url, username, password, id, secret, data, callback, con
 			{
 				if (err || response.statusCode != 200) 
 				{
-					console.log("Netatmo error:"+response.statusCode);
+					console.log("getToken error:"+response.statusCode);
 					callback({'tts': g_errornetatmosite});
 					return -1;
 				}
@@ -204,11 +195,11 @@ var parseToken = function(body, data, callback, config)
 	g_expiresin = json.expires_in;
 	g_refresh_token = json.refresh_token;
     device_list_url=gs_device_list_url+g_token;
-    getURL(device_list_url, data, callback, config, parseDeviceList);
+    getURL(device_list_url, data, callback, config, parseDeviceList, 0);
 	return 0;
 }
 
-var parseDeviceList = function(body, data, callback, config)
+var parseDeviceList = function(body, data, callback, config, arg)
 {
 	var json = JSON.parse(body);
 
@@ -274,11 +265,11 @@ var parseDeviceList = function(body, data, callback, config)
 		for (i=0;i<json.body.devices.length;i++)
 		{
 		  measure_url = gs_measure_url+g_token+'&device_id='+json.body.devices[i]._id+'&type=Temperature,CO2,Humidity,Pressure,Noise&scale=max&date_end=last';
-		  getURL2(measure_url, data, callback, config, parseMeasure,count++);
+		  getURL(measure_url, data, callback, config, parseMeasure,count++);
 		  for (j=0;j<json.body.devices[i].modules.length;j++)
 		  {
 			measure_url = gs_measure_url+g_token+'&device_id='+json.body.devices[i]._id+'&module_id='+json.body.modules[j]._id+'&type=Temperature,CO2,Humidity,Pressure&scale=max&date_end=last';
-			getURL2(measure_url, data, callback, config, parseMeasure,count++);
+			getURL(measure_url, data, callback, config, parseMeasure,count++);
 		  }
 		}
 	return 0;
@@ -385,17 +376,21 @@ var checkBattery=function(type, section, index)
     g_iconbattery[index]="";
     return;
   }
+  // This is experimental: I don't know the high and low limit mV of the Netatmo batteries
+  // <3000 : batteries near empty ?
   else if (g_lvlbattery[index]<3000)
   {
     g_battery[0]+=section+",";
     g_iconbattery[index]="0";
   }
+  // <5000 : batteries half full ?
   else if (g_lvlbattery[index]<5000)
   {
     g_battery[1]+=section+",";
     g_iconbattery[index]="50";
   }
   else
+  // >5000 : batteries full ?
     g_iconbattery[index]="100";
 }
 
@@ -537,17 +532,15 @@ var showAll = function()
 		switch(g_types[i])
 		{
 			case "NAMain":
-			  for (j=0;j<5;j++)
-				console.log(getTitle(j)+":"+g_values[i][j]+" "+getUnit(j));
+			  console.log("Battery: No batteries");
 			  break;
 			case "NAModule1":
-			  j=0;console.log(getTitle(j)+":"+g_values[i][j]+" "+getUnit(j));
-			  j=2;console.log(getTitle(j)+":"+g_values[i][j]+" "+getUnit(j));
-			  break;
 			case "NAModule4":
-			  for (j=0;j<3;j++)
-				console.log(getTitle(j)+":"+g_values[i][j]+" "+getUnit(j));
+			  console.log("Battery: "+g_lvlbattery[i]+" mV");
 			  break;
 		}
+	    for (j=0;j<5;j++)
+		  if (isPertinent(g_types[i],j)) 
+			console.log(getTitle(j)+":"+g_values[i][j]+" "+getUnit(j));
 	}
 }
