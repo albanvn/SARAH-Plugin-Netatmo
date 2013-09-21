@@ -3,11 +3,17 @@
     "netatmo"  : {
       "description": "permet de remonter les infos du NETATMO",
       "version": "1.0",
-      "email":"",
-      "password":"",
-      "id":"",
-      "secret":"",
-	  "advice":"1"
+      "email": "",
+      "password": "",
+      "id": "",
+      "secret": "",
+	  "advice": "1",
+	  "min_temp": "18",
+	  "max_temp": "23",
+	  "min_humidity": "20",
+	  "max_humidity": "70",
+	  "max_noise": "60",
+	  "ignore_external": "1"
 	  }
   }
 }

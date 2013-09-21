@@ -10,11 +10,14 @@ var g_refresh_token = "";
 // Netatmo data
 var g_values;
 var g_types;
+var g_lvlbattery;
+var g_iconbattery;
 var g_names;
-var g_count=0;
+var g_mod=0;
 var g_req=0;
 var g_skip_empty=1;
-// Sarah advice
+var g_netatmoxmlfile="netatmo.xml";
+// Sarah advice and message
 var gs_msg_advice_allok="Rien à signaler de particulier";
 var gs_msg_advice_synhabitat="Voici le bilan de l'habitat:";
 var g_advice_start="Dans:"
@@ -43,6 +46,13 @@ var g_advice_noise=new Array
 				(
 					"il y a beaucoup de bruit, réduisez le."
 				);
+				
+var g_battery=new Array(2);
+var g_advice_battery=new Array
+				( 
+					"la batterie est presque vide, veillez à la remplacer",
+					"la batterie est à moitié vide"
+				);
 		
 var g_netatmo_unit=new Array
 					(		
@@ -63,16 +73,19 @@ var g_netatmo_title=new Array
 					);
 					
 var g_nodata_msg=".Aucune donnée pour ";
-var g_errsettings="Les paramètre Nette atmo sont incomplet, veuillez les renseigner";
+var g_errsettings="Les paramètre du pleug ine Nette atmo sont incomplet, veuillez les renseigner";
 var g_okletshavealook="Je me renseigne";
 var g_errornetatmosite="Impossible de joindre Netatmo";
-var g_netatmoxmlfile="netatmo.xml";
+var g_allisfine="Rien à signaler de particulier";
 
 var init_callback=function(opts)
 {
   return ;
 }
 
+/////////////////////
+// SARAH MODULE INIT FUNCTION
+/////////////////////
 exports.init = function (SARAH)
 {
   var config=SARAH.ConfigManager.getConfig();
@@ -87,6 +100,9 @@ exports.init = function (SARAH)
   getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, init_callback, config);
 }
 
+/////////////////////
+// SARAH MODULE ACTION FUNCTION
+/////////////////////
 exports.action = function(data, callback, config, SARAH) 
 {
   var config = config.modules.netatmo;
@@ -96,6 +112,25 @@ exports.action = function(data, callback, config, SARAH)
   SARAH.speak (g_okletshavealook); 
   getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, callback, config);
 }
+
+/////////////////////
+// SARAH MODULE GETBASIC FUNCTION
+/////////////////////
+var getBasic = function(config)
+{
+  var config = config.modules.netatmo;
+  if (!config.email || !config.password || !config.id || !config.secret)
+    return "error";
+  var data={};
+  data.init=2;
+  var info={};
+  info.names=g_names;
+  info.icon=g_iconbattery;
+  getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, init_callback, config);
+  return info;
+}
+
+exports.getBasic=getBasic;
 
 var getURL = function(url, data, callback, config, cb)
 {
@@ -181,6 +216,8 @@ var parseDeviceList = function(body, data, callback, config)
 	// Maximize g_names and g_types to avoid pre count
 	g_names=new Array(json.body.devices.length*4);
 	g_types=new Array(json.body.devices.length*4);
+	g_lvlbattery=new Array(json.body.devices.length*4);
+	g_iconbattery=new Array(json.body.devices.length*4);
 	g_mod=0;
     config_xml="";
 	// Extract devices and modules to an 1 dim array
@@ -189,12 +226,14 @@ var parseDeviceList = function(body, data, callback, config)
 	  config_xml+="		<item>"+json.body.devices[i].module_name+"<tag>out.action.capteur="+g_mod+";</tag></item>\n";
 	  g_names[g_mod]=json.body.devices[i].module_name;
 	  g_types[g_mod++]=json.body.devices[i].type;
+	  g_lvlbattery[g_mod]=-1;
 	  for (j=0;j<json.body.devices[i].modules.length;j++)
 	  {
 	    for (k=0;k<json.body.modules.length;k++)
 			if (json.body.devices[i].modules[j]==json.body.modules[k]._id)
 			{
 				config_xml+="		<item>"+json.body.modules[k].module_name+"<tag>out.action.capteur="+g_mod+";</tag></item>\n";
+				g_lvlbattery[g_mod]=json.body.modules[k].battery_vp;
 				g_names[g_mod]=json.body.modules[k].module_name;
 				g_types[g_mod++]=json.body.modules[k].type;
 			}
@@ -205,7 +244,19 @@ var parseDeviceList = function(body, data, callback, config)
 	for (i=0;i<g_mod;i++) g_values[i]=new Array(5);
 	// Get Devices and modules info and save its
 	count=0
-	if (data.init==1)
+	if (data.init==2 || data.init==3)
+	{
+	  // Check Battery
+	  for (i=0;i<g_mod;i++)
+		  checkBattery(g_types[i],g_names[i],i);
+	  if (data.init==3)
+	  {
+	    var txt=buildBatteryAdvice();
+		if (txt=="") txt=g_allisfine;
+		callback({'tts': txt});
+	  }
+	}
+	else if (data.init==1)
 	{
 	  // Update Netatmo.xml with netatmo settings parameters
 	  var fs   = require('fs');
@@ -214,6 +265,9 @@ var parseDeviceList = function(body, data, callback, config)
 	  var regexp = new RegExp('§[^§]+§','gm');
       var xml    = xml.replace(regexp, "§ -->\n" + config_xml + "<!-- §");
       fs.writeFileSync(__dirname+"\\"+g_netatmoxmlfile, xml, 'utf8');
+	  // Check Battery
+	  for (i=0;i<g_mod;i++)
+		  checkBattery(g_types[i],g_names[i],i);
 	}
 	else
 	    // Get the data
@@ -249,24 +303,21 @@ var parseMeasure = function(body, data, callback, config, mod)
 	  case "NAModule1":
 		g_values[mod][0]=json.body[0].value[0][0]; // Temperature
 		g_values[mod][2]=json.body[0].value[0][2]; // Humidity
-		g_values[mod][1]=0; 
-		g_values[mod][3]=0; 
-		g_values[mod][4]=0; 
+		g_values[mod][1]=0; // ignored
+		g_values[mod][3]=0; // ignored
+		g_values[mod][4]=0; // ignored 
 		break;
-	  // Add on netatmo device
+	  // 'Add on' netatmo device
 	  case "NAModule4":
 		g_values[mod][0]=json.body[0].value[0][0]; // Temperature
 		g_values[mod][1]=json.body[0].value[0][1]; // CO2
 		g_values[mod][2]=json.body[0].value[0][2]; // Humidity
-		g_values[mod][3]=0; 
-		g_values[mod][4]=0; 
+		g_values[mod][3]=0; // ignored
+		g_values[mod][4]=0; // ignored
 		break;
 	}
     if (g_req==g_mod && data.mode && data.capteur)
-	{
-//	  showAll();
 	  buildDataAndSpeak(data,callback,config);
-	}
 	return 0;
 }
 
@@ -288,41 +339,64 @@ var isPertinent = function(module, index)
 {
   switch(module)
   {
-     case "NAMain":
+     case "NAMain": // Main device
 	   if (index>=0 && index<=4) return true;
 	   break;
-     case "NAModule1":
+     case "NAModule1": // External device
 	   if (index==0 || index==2) return true;
 	   break;
-     case "NAModule4":
+     case "NAModule4": // 'Add on' device
 	   if (index>=0 && index<=2) return true;
 	   break;
   }
   return false;
 }
 
-var getAdvice = function(type, mode, section, value)
+var getAdvice = function(config, type, mode, section, value)
 {
-  if (type=="NAModule1") return;
+  if (parseInt(config.ignore_external)==1 && type=="NAModule1") 
+    return;
   switch(mode)
   {
-    case 1:
+    case 1: // Air quality
 		if (value>=400 && value<=600) g_air[0]+=section+",";
 		else if (value>600 && value<=800) g_air[1]+=section+",";
 		else if (value>800 && value<=1000)  g_air[2]+=section+",";
 		else if (value>1000) g_air[3]+=section+",";
 		break;
 	case 0: // Temperature
-	    if (value>23) g_temp[0]+=section+",";
-		else if (value<18) g_temp[1]+=section+",";
+	    if (value>parseInt(config.max_temp)) g_temp[0]+=section+",";
+		else if (value<parseInt(config.min_temp)) g_temp[1]+=section+",";
 		break;
-	case 2: // Humidité
-	    if (value>80) g_humidity[0]+=section+",";
+	case 2: // Humidity
+	    if (value>parseInt(config.max_humidity)) g_humidity[0]+=section+",";
+	    else if (value<parseInt(config.min_humidity)) g_humidity[1]+=section+",";
 		break;
-	case 4: // Bruit
-	    if (value>60) g_noise[0]+=section+",";
+	case 4: // Noise
+	    if (value>parseInt(config.max_noise)) g_noise[0]+=section+",";
 		break;
   }
+}
+
+var checkBattery=function(type, section, index)
+{
+  if (type=="NAMain")
+  {
+    g_iconbattery[index]="";
+    return;
+  }
+  else if (g_lvlbattery[index]<3000)
+  {
+    g_battery[0]+=section+",";
+    g_iconbattery[index]="0";
+  }
+  else if (g_lvlbattery[index]<5000)
+  {
+    g_battery[1]+=section+",";
+    g_iconbattery[index]="50";
+  }
+  else
+    g_iconbattery[index]="100";
 }
 
 var resetAdvice=function()
@@ -334,7 +408,9 @@ var resetAdvice=function()
   for (i=0;i<g_noise.length;i++)
     g_noise[i]="";
   for (i=0;i<g_humidity.length;i++)
-    g_humidity[i]="";
+    g_humidity[i]=""; 
+  for (i=0;i<g_battery.length;i++)
+    g_battery[i]=""; 
   return 0;
 }
 
@@ -359,6 +435,16 @@ var buildAdvice=function()
   return advice;
 }
 
+var buildBatteryAdvice=function()
+{
+  var advice="";
+  resetAdvice();
+  for (i=0;i<g_battery.length;i++)
+    if (g_battery[i]!="")
+	  advice+=g_advice_start+g_battery[i]+g_advice_battery[i];
+  return advice;
+}
+
 var buildDataAndSpeak = function(data,callback,config)
 {
   var txt="";
@@ -373,24 +459,28 @@ var buildDataAndSpeak = function(data,callback,config)
   switch (capteur)
   {
 	case -1:
+	  // Parse all device list
 	  for (i=0;i<g_mod;i++)
 	  {
 		  section=g_names[i];
+		  checkBattery(g_types[i],section,i);
 		  switch(mode)
 		  {
 			case -1:
+			  // Parse all collected data
 			  for (j=0;j<5;j++)
 			    if (isPertinent(g_types[i],j)) 
 				{
 				  content+=getTitle(j)+" "+g_values[i][j]+" "+getUnit(j)+", ";
-   			      getAdvice(g_types[i],j, section, g_values[i][j]);
+   			      getAdvice(config, g_types[i],j, section, g_values[i][j]);
 				}
 			  break;
 			default:
+			  // Only parse wanted data
 			  if (isPertinent(g_types[i],mode))
 			  {
 			    content+=getTitle(mode)+" "+g_values[i][mode]+" "+getUnit(mode)+", ";
-   			    getAdvice(g_types[i],mode, section, g_values[i][mode]);
+   			    getAdvice(config, g_types[i],mode, section, g_values[i][mode]);
 			  }
 			  break;
 		  }
@@ -401,21 +491,24 @@ var buildDataAndSpeak = function(data,callback,config)
 	  break;
 	default:
 	  section=g_names[capteur];
+	  checkBattery(g_types[capteur],section,capteur);
 	  switch(mode)
 	  {
 		case -1:
+		  // Parse all collected data
 		  for (j=0;j<5;j++)
 			if (isPertinent(g_types[capteur],j))
 			{
 			  content+=getTitle(j)+" "+g_values[capteur][j]+" "+getUnit(j)+", ";
-  			  getAdvice(g_types[capteur],j, section, g_values[capteur][j]);
+  			  getAdvice(config, g_types[capteur],j, section, g_values[capteur][j]);
 			}
 		  break;
 		default:
+		  // Only parse wanted data
 		  if (isPertinent(g_types[capteur],mode)) 
 		  {
 		    content+=getTitle(mode)+" "+g_values[capteur][mode]+" "+getUnit(mode)+", ";
-			getAdvice(g_types[capteur],mode, section, g_values[capteur][mode]);
+			getAdvice(config, g_types[capteur],mode, section, g_values[capteur][mode]);
 		  }
 		  break;
 	  }
@@ -435,7 +528,7 @@ var buildDataAndSpeak = function(data,callback,config)
   return 0;
 }
 
-// For Debug purpose
+// For Debug purpose only
 var showAll = function()
 {
 	for (i=0;i<g_mod;i++)

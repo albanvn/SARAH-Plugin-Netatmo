@@ -1,0 +1,16 @@
+<% stylesheet('assets/'+key+'/portlet.css') %>
+<% 
+  var netatmo = SARAH.ConfigManager.getModule(key); 
+  var info = netatmo.getBasic(SARAH.ConfigManager.getConfig()); 
+%>
+
+<div class="logo">
+  <a href="sarah/netatmo" class="ajax"><img src="/assets/netatmo/images/netatmo.jpg"></a>
+</div>
+
+<div class="text">
+  <br/><span class="title">Netatmo</span>
+  <% for (i=0;i<info.names.length;i++) { if (info.icon[i]!="") {%>
+  <br/><%= info.names[i] %> : <span class="status"><img src="/assets/netatmo/images/charge_<%= info.icon[i] %>.png" title=""></span>
+  <% } } %>
+</div>

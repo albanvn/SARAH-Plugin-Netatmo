@@ -5,7 +5,15 @@
 	Une fois la connexion effectuée avec le site NETATMO, le fichier de commande vocale netatmo.xml sera mis à jour avec
 	vos propres paramètres des stations NETATMO (c'est à dire avec le nom de chacune de vos balise NETATMO tel que configurés sur le site NETATMO)<BR>
 	Vous pourrez alors interroger SARAH sur les informations relevées par vos balise<BR>
-	La variable advice dans les settings correspond à l'activation (=1) ou non (=0) de conseils donnés par SARAH après interrogation des balises lors du "bilan de l'habitat"<BR>
+	La variable 'advice' dans les settings du Plugin NETATMO correspond à l'activation (=1) ou non (=0) de conseils donnés par SARAH après interrogation des balises lors du "bilan de l'habitat".<BR>
+	Les autres variables:<BR>
+	<ul>
+	  <li>min_temp/max_temp: température min/max qui déclenche un conseil de SARAH</li>
+	  <li>min_humidity/max_humidity: humidité min/max qui déclenche un conseil de SARAH</li>
+	  <li>max_noise: bruit maximum qui déclenche un conseil de SARAH</li>
+	  <li>ignore_external: permet d'ignorer les paramètres température/humidité/bruit remonté par la balise exterieur NETATMO lors des conseils</li>
+	</ul>
+	<BR><BR>
 	<h4><u>Voici un exemple non exaustif des commandes vocales reconnues par le plugin Netatmo dans SARAH:</h4></u>
       <ul>
 		<li><b>Combien fait-il ?</li></b>

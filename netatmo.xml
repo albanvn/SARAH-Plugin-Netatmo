@@ -17,6 +17,7 @@
 	  <item>Quels est le bilan de l'habitat<tag>out.action.capteur=-1;out.action.mode=-1;out.action.conseil=1;</tag></item>
 	  <item>Bilan de l'habitat<tag>out.action.capteur=-1;out.action.mode=-1;out.action.conseil=1;</tag></item>
 	  <item>Fais un bilan de l'habitat<tag>out.action.capteur=-1;out.action.mode=-1;out.action.conseil=1;</tag></item>
+	  <item>Quel est l'état des batteries<tag>out.action.capteur=-1;out.action.mode=-1;out.action.init=3;</tag></item>
 	  <item>
 	    <one-of>
 		  <item>Quelle est</item>
