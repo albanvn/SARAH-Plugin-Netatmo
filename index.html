@@ -4,26 +4,27 @@
 	Pour cela, veuillez renseigner les paramètres du plugin NETATMO (compte NETATMO:email,mot de passe, id, secret).<BR>
 	Une fois la connexion effectuée avec le site NETATMO, le fichier de commande vocale netatmo.xml sera mis à jour avec
 	vos propres paramètres des stations NETATMO (c'est à dire avec le nom de chacune de vos balise NETATMO tel que configurés sur le site NETATMO)<BR>
-	Vous pourrez alors interroger SARAH sur les informations relevées par vos balise<BR>
-	La variable 'advice' dans les settings du Plugin NETATMO correspond à l'activation (=1) ou non (=0) de conseils donnés par SARAH après interrogation des balises lors du "bilan de l'habitat".<BR>
-	Les autres variables:<BR>
+	Vous pourrez alors interroger SARAH sur les informations relevées par vos balise<BR><BR>
+	Les autres variables des paramètres du plugin NETATMO:<BR>
 	<ul>
-	  <li>min_temp/max_temp: température min/max qui déclenche un conseil de SARAH</li>
-	  <li>min_humidity/max_humidity: humidité min/max qui déclenche un conseil de SARAH</li>
-	  <li>max_noise: bruit maximum qui déclenche un conseil de SARAH</li>
-	  <li>ignore_external: permet d'ignorer les paramètres température/humidité/bruit remonté par la balise exterieur NETATMO lors des conseils</li>
+	  <li><b>advice</b>: permet d'activer (=1) ou de désactiver (=0) les conseils de SARAH après interrogation des balises lors du bilan de l'habitat.</li>
+	  <li><b>min_temp/max_temp</b>: seuil de température min/max qui déclenche un conseil de SARAH</li>
+	  <li><b>min_humidity/max_humidity</b>: seuil de taux d'humidité min/max qui déclenche un conseil de SARAH</li>
+	  <li><b>max_noise</b>: seuil de bruit maximum qui déclenche un conseil de SARAH</li>
+	  <li><b>ignore_external</b>: permet d'ignorer les paramètres température/humidité/bruit remonté par la balise exterieur NETATMO lors des conseils</li>
 	</ul>
 	<BR><BR>
-	<h4><u>Voici un exemple non exaustif des commandes vocales reconnues par le plugin Netatmo dans SARAH:</h4></u>
-      <ul>
-		<li><b>Combien fait-il ?</li></b>
-		<li><b>Vérifie la qualité de l'air/le taux d'humidité/la température</li></b>
-		<li><b>Synthèse NETATMO</li></b>
-		<li><b>quelles sont les données climatiques de la maison ?</li></b>
-		<li><b>Fait un bilan de l'habitat</li></b>
-		<li><b>Quels est le bilan de l'habitat ?</li></b>
-		<li><b>Bilan de l'habitat</li></b>
-		<li><b>Quelle est la température/l'humidité/la qualité de l'air/la pression/le bruit dans/sur/de {nom_balise/la maison} ?</li></b>
+	<h4><u>Voici un exemple non exaustif des commandes vocales reconnues par le plugin Netatmo dans SARAH:</u></h4>
+      <ul></b>
+		<li>Combien fait-il ?</li>
+		<li>Vérifie la qualité de l'air/le taux d'humidité/la température</li>
+		<li>Synthèse NETATMO</li>
+		<li>quelles sont les données climatiques de la maison ?</li>
+		<li>Fait un bilan de l'habitat</li>
+		<li>Quels est le bilan de l'habitat ?</li>
+		<li>Bilan de l'habitat</li>
+		<li>Quel est l'état des batteries Nette atmo ?</li>
+		<li>Quelle est la température/l'humidité/la qualité de l'air/la pression/le bruit dans/sur/de {nom_balise/la maison} ?</li>
       </ul>
 <BR>
 	Voila j'espère que le plugin vous plaira et qu'il vous donnera satisfaction.<BR>

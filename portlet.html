@@ -5,12 +5,13 @@
 %>
 
 <div class="logo">
-  <a href="sarah/netatmo" class="ajax"><img src="/assets/netatmo/images/netatmo.jpg"></a>
+  <a href="sarah/<%=key%>?capteur=-1&mode=-1" class="ajax"><img src="/assets/<%=key%>/images/netatmo.jpg"></a>
 </div>
 
 <div class="text">
   <br/><span class="title">Netatmo</span>
+  <br/><div class="author">by AVN</div>
   <% for (i=0;i<info.names.length;i++) { if (info.icon[i]!="") {%>
-  <br/><%= info.names[i] %> : <span class="status"><img src="/assets/netatmo/images/charge_<%= info.icon[i] %>.png" title=""></span>
+  <br/><span class="status"><%= info.names[i] %> : <img src="/assets/<%=key%>/images/charge_<%= info.icon[i] %>.png" title=""></span>
   <% } } %>
 </div>

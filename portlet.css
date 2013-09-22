@@ -20,16 +20,21 @@
 .plugin-gridster.netatmo .text {
   background: #FFFFFF;
   right: 0; width: 65%; 
-  text-align: left;
 }
 .plugin-gridster.netatmo .text .title {
-  font-size: 25px; line-height: 28px;
+  font-size: 22px; 
+  line-height: 22px;
   font-weight: bold;
+}
+.plugin-gridster.netatmo .text .author {
+  font-size: 12px;
+  text-align: right;
+  width: 90%
 }
 .plugin-gridster.netatmo .text .status {
-  font-size: 10px; 
-  font-weight: bold;
+  font-size: 11px;
+  line-height: 11px;  
 }
 .plugin-gridster.netatmo .text .status img {
-  vertical-align: baseline;
+  vertical-align: center;
 }

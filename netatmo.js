@@ -214,7 +214,7 @@ var parseDeviceList = function(body, data, callback, config, arg)
 	// Extract devices and modules to an 1 dim array
 	for (i=0;i<json.body.devices.length;i++)
 	{
-	  config_xml+="		<item>"+json.body.devices[i].module_name+"<tag>out.action.capteur="+g_mod+";</tag></item>\n";
+	  config_xml+="		<item>"+json.body.devices[i].module_name+"<tag>out.action.capteur=\""+g_mod+"\";</tag></item>\n";
 	  g_names[g_mod]=json.body.devices[i].module_name;
 	  g_types[g_mod++]=json.body.devices[i].type;
 	  g_lvlbattery[g_mod]=-1;
@@ -223,7 +223,7 @@ var parseDeviceList = function(body, data, callback, config, arg)
 	    for (k=0;k<json.body.modules.length;k++)
 			if (json.body.devices[i].modules[j]==json.body.modules[k]._id)
 			{
-				config_xml+="		<item>"+json.body.modules[k].module_name+"<tag>out.action.capteur="+g_mod+";</tag></item>\n";
+				config_xml+="		<item>"+json.body.modules[k].module_name+"<tag>out.action.capteur=\""+g_mod+"\";</tag></item>\n";
 				g_lvlbattery[g_mod]=json.body.modules[k].battery_vp;
 				g_names[g_mod]=json.body.modules[k].module_name;
 				g_types[g_mod++]=json.body.modules[k].type;
@@ -237,6 +237,7 @@ var parseDeviceList = function(body, data, callback, config, arg)
 	count=0
 	if (data.init==2 || data.init==3)
 	{
+	  resetAdvice();
 	  // Check Battery
 	  for (i=0;i<g_mod;i++)
 		  checkBattery(g_types[i],g_names[i],i);
@@ -256,6 +257,7 @@ var parseDeviceList = function(body, data, callback, config, arg)
 	  var regexp = new RegExp('§[^§]+§','gm');
       var xml    = xml.replace(regexp, "§ -->\n" + config_xml + "<!-- §");
       fs.writeFileSync(__dirname+"\\"+g_netatmoxmlfile, xml, 'utf8');
+      resetAdvice();
 	  // Check Battery
 	  for (i=0;i<g_mod;i++)
 		  checkBattery(g_types[i],g_names[i],i);
@@ -307,8 +309,10 @@ var parseMeasure = function(body, data, callback, config, mod)
 		g_values[mod][4]=0; // ignored
 		break;
 	}
-    if (g_req==g_mod && data.mode && data.capteur)
+    if (g_req==g_mod)
+	{
 	  buildDataAndSpeak(data,callback,config);
+	}
 	return 0;
 }
 
@@ -426,14 +430,12 @@ var buildAdvice=function()
 	  advice+=g_advice_start+g_noise[i]+g_advice_noise[i];
   if (advice=="")
     advice=gs_msg_advice_allok;
-  advice=gs_msg_advice_synhabitat+advice;
-  return advice;
+  return gs_msg_advice_synhabitat+advice;
 }
 
 var buildBatteryAdvice=function()
 {
   var advice="";
-  resetAdvice();
   for (i=0;i<g_battery.length;i++)
     if (g_battery[i]!="")
 	  advice+=g_advice_start+g_battery[i]+g_advice_battery[i];
@@ -513,13 +515,13 @@ var buildDataAndSpeak = function(data,callback,config)
 	  break;
   }
   advice=buildAdvice();
+  console.log(txt);
   if (data.conseil=="1")
 	callback({'tts': advice});
-  else if (data.advice=="1")
+  else if (config.advice=="1")
 	callback({'tts': txt +"." + advice});
   else
     callback({'tts': txt});
-  console.log(txt);
   return 0;
 }
 

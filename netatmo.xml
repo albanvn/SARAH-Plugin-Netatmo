@@ -1,55 +1,60 @@
 ﻿<grammar version="1.0" xml:lang="fr-FR" mode="voice" root="rulenetatmo" xmlns="http://www.w3.org/2001/06/grammar" tag-format="semantics/1.0">
   <rule id="rulenetatmo" scope="public">
     <example>Sarah Quels sont les temperatures ?</example>
-    <tag>out.action=new Object();</tag>
-    <item>Sarah</item>
-	<tag>out.action.mode=-1;</tag>
-	<tag>out.action.init=0;</tag>
-	<tag>out.action.capteur=-1;</tag>
-	<one-of>
-      <item>combien fait-il<tag>out.action.mode=0;</tag></item>
-      <item>vérifie la qualité de l'air <tag>out.action.capteur=2;</tag></item>
-      <item>vérifie la température<tag>out.action.capteur=0;</tag></item>
-      <item>vérifie le taux d'humidité<tag>out.action.capteur=2;</tag></item>
-	  <item>synthèse Nette atmo</item>
-	  <item>quelles sont les données climatiques de la maison</item>
-	  <item>Fait un bilan de l'habitat<tag>out.action.capteur=-1;out.action.mode=-1;out.action.conseil=1;</tag></item>
-	  <item>Quels est le bilan de l'habitat<tag>out.action.capteur=-1;out.action.mode=-1;out.action.conseil=1;</tag></item>
-	  <item>Bilan de l'habitat<tag>out.action.capteur=-1;out.action.mode=-1;out.action.conseil=1;</tag></item>
-	  <item>Fais un bilan de l'habitat<tag>out.action.capteur=-1;out.action.mode=-1;out.action.conseil=1;</tag></item>
-	  <item>Quel est l'état des batteries<tag>out.action.capteur=-1;out.action.mode=-1;out.action.init=3;</tag></item>
-	  <item>
-	    <one-of>
-		  <item>Quelle est</item>
-		</one-of>
-	    <one-of>
-		  <item>le taux d'humidité<tag>out.action.mode=2;</tag></item>
-		  <item>la température<tag>out.action.mode=0;</tag></item>
-		  <item>la qualité de l'air<tag>out.action.mode=1;</tag></item>
-		  <item>la pression<tag>out.action.mode=3;</tag></item>
-		  <item>le bruit<tag>out.action.mode=4;</tag></item>
+    <tag>out.action=new Object();out.action.mode="-1";out.action.init="0";out.action.capteur="-1";out.action.conseil="0";</tag>
+    <item>Sarah
+		<tag>out.action.mode="-1";</tag>
+		<tag>out.action.init="0";</tag>
+		<tag>out.action.capteur="-1";</tag>
+		<tag>out.action.conseil="0";</tag>
+		<one-of>
+		  <item>quelles sont les donnés climatiques de la maison</item>
+		  <item>combien fait-il<tag>out.action.mode="0";</tag></item>
+		  <item>vérifie la qualité de l'air <tag>out.action.capteur="2";</tag></item>
+		  <item>vérifie la température<tag>out.action.capteur="0";</tag></item>
+		  <item>vérifie le taux d'humidité<tag>out.action.capteur="2";</tag></item>
+		  <item>Fait un bilan de l'habitat<tag>out.action.conseil="1";</tag></item>
+		  <item>Quels est le bilan de l'habitat<tag>out.action.conseil="1";</tag></item>
+		  <item>Bilan de l'habitat<tag>out.action.conseil="1";</tag></item>
+		  <item>Qualité de l'habitat<tag>out.action.conseil="1";</tag></item>
+		  <item>Quel est la qualité de l'habitat<tag>out.action.conseil="1";</tag></item>
+		  <item>Fais un bilan de l'habitat<tag>out.action.conseil="1";</tag></item>
+		  <item>Quelle est l'état des batteries Nette atmo<tag>out.action.init="3";</tag></item>
+		  <item>état des batteries Nette atmo<tag>out.action.init="3";</tag></item>
+		  <item>
+			<one-of>
+			  <item>Quelle est</item>
+			  <item>Donne moi</item>
+			</one-of>
+			<one-of>
+			  <item>le taux d'humidité<tag>out.action.mode="2";</tag></item>
+			  <item>la température<tag>out.action.mode="0";</tag></item>
+			  <item>la qualité de l'air<tag>out.action.mode="1";</tag></item>
+			  <item>la pression<tag>out.action.mode="3";</tag></item>
+			  <item>le bruit<tag>out.action.mode="4";</tag></item>
+			</one-of>
+			<item repeat="0-1">
+			  <one-of>
+				<item>dans</item>
+				<item>sur</item>
+				<item>de</item>
+			  </one-of>
+			  <one-of>
+	<!-- Automatic Generation § -->
+    <!-- § Automatic Generation -->
+			<item>La maison<tag>out.action.capteur="-1";</tag></item>
+			  </one-of>
+			</item>
+		  </item>
 		</one-of>
 		<item repeat="0-1">
 		  <one-of>
-		    <item>dans</item>
-			<item>sur</item>
-			<item>de</item>
+			<item>s'il te plait</item>
+			<item>si il te plait</item>
+			<item>se te plait</item>
 		  </one-of>
-	<one-of>
-<!-- Automatic Generation § -->
-<!-- § Automatic Generation -->
-		<item>La maison<tag>out.action.capteur=-1;</tag></item>
-	</one-of>
 		</item>
-	  </item>
-    </one-of>
-    <item repeat="0-1">
-      <one-of>
-        <item>s'il te plait</item>
-        <item>si il te plait</item>
-        <item>se te plait</item>
-      </one-of>
-    </item>
+	</item>
     <tag>out.action._attributes.uri="http://127.0.0.1:8080/sarah/netatmo";</tag>
   </rule> 
 </grammar>
