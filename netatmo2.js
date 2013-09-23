@@ -108,11 +108,14 @@ exports.init = function (SARAH)
   if (!config.email || !config.password || !config.id || !config.secret)
   {
 	SARAH.speak(g_errsettings);
+	callback();
 	return ;
   }
   var data = {};
   data.init=1;
-  getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, init_callback, config);
+  if (getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, init_callback, config, SARAH)!=0)
+    callback();
+  return ;
 }
 
 /////////////////////
@@ -123,15 +126,16 @@ exports.action = function(data, callback, config, SARAH)
   var config = config.modules.netatmo2;
   
   if (!config.email || !config.password || !config.id || !config.secret)
-    return callback({'tts': g_errsettings});
-  SARAH.speak (g_okletshavealook); 
-  getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, callback, config);
+    return SARAH.speak(g_errsettings);
+  SARAH.speak(g_okletshavealook); 
+  if (getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, callback, config, SARAH)!=0)
+    callback();
 }
 
 /////////////////////
 // SARAH MODULE GETBASIC FUNCTION
 /////////////////////
-var getBasic = function(config)
+var getBasic = function(config, SARAH)
 {
   var config = config.modules.netatmo2;
   if (!config.email || !config.password || !config.id || !config.secret)
@@ -142,7 +146,7 @@ var getBasic = function(config)
   info.connexion=g_connexion;
   info.names=g_names;
   info.icon=g_iconbattery;
-  getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, init_callback, config);
+  getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, init_callback, config, SARAH);
   return info;
 }
 
@@ -152,7 +156,7 @@ exports.getBasic=getBasic;
 // PRIVATE FUNCTION
 ////////////////////////
 
-var getURL = function(url, data, callback, config, cb, arg)
+var getURL = function(url, data, callback, config, mycallback, arg, SARAH)
 {
 	var request = require('request');
 	request(
@@ -165,13 +169,13 @@ var getURL = function(url, data, callback, config, cb, arg)
 					  callback({'tts': g_errornetatmosite});
 					  return -1;
 					}
-					cb (body, data, callback, config, arg);
+					mycallback (body, data, callback, config, arg, SARAH);
 				}
 			);
 	return -2;
 }
 
-var getToken = function(url, username, password, id, secret, data, callback, config)
+var getToken = function(url, username, password, id, secret, data, callback, config, SARAH)
 {
 	var request = require('request');
 	request({ 
@@ -192,15 +196,15 @@ var getToken = function(url, username, password, id, secret, data, callback, con
 				if (err || response.statusCode != 200) 
 				{
 					console.log("getToken error:"+response.statusCode);
-					callback({'tts': g_errornetatmosite});
+					SARAH.speak(g_errornetatmosite);
 					return -1;
 				}
-				parseToken(body, data, callback, config);
+				parseToken(body, data, callback, config, SARAH);
 			});
 	return -2;
 }
 
-var parseToken = function(body, data, callback, config)
+var parseToken = function(body, data, callback, config, SARAH)
 {
 	var json = JSON.parse(body);
 
@@ -209,11 +213,11 @@ var parseToken = function(body, data, callback, config)
 	g_refresh_token = json.refresh_token;
 	g_connexion=1;
     device_list_url=gs_device_list_url+g_token;
-    getURL(device_list_url, data, callback, config, parseDeviceList, 0);
+    getURL(device_list_url, data, callback, config, parseDeviceList, 0, SARAH);
 	return 0;
 }
 
-var parseDeviceList = function(body, data, callback, config, arg)
+var parseDeviceList = function(body, data, callback, config, arg, SARAH)
 {
 	var json = JSON.parse(body);
 
@@ -281,17 +285,17 @@ var parseDeviceList = function(body, data, callback, config, arg)
 		for (i=0;i<json.body.devices.length;i++)
 		{
 		  measure_url = gs_measure_url+g_token+'&device_id='+json.body.devices[i]._id+'&type=Temperature,CO2,Humidity,Pressure,Noise&scale=max&date_end=last';
-		  getURL(measure_url, data, callback, config, parseMeasure,count++);
+		  getURL(measure_url, data, callback, config, parseMeasure,count++, SARAH);
 		  for (j=0;j<json.body.devices[i].modules.length;j++)
 		  {
 			measure_url = gs_measure_url+g_token+'&device_id='+json.body.devices[i]._id+'&module_id='+json.body.modules[j]._id+'&type=Temperature,CO2,Humidity,Pressure&scale=max&date_end=last';
-			getURL(measure_url, data, callback, config, parseMeasure,count++);
+			getURL(measure_url, data, callback, config, parseMeasure,count++, SARAH);
 		  }
 		}
 	return 0;
 }
 
-var parseMeasure = function(body, data, callback, config, mod)
+var parseMeasure = function(body, data, callback, config, mod, SARAH)
 {
 	var json= JSON.parse(body);
     g_req++;
@@ -325,7 +329,7 @@ var parseMeasure = function(body, data, callback, config, mod)
 	}
     if (g_req==g_mod)
 	{
-	  buildDataAndSpeak(data,callback,config);
+	  buildDataAndSpeak(data,callback,config, SARAH);
 	}
 	return 0;
 }
@@ -456,7 +460,7 @@ var buildBatteryAdvice=function()
   return advice;
 }
 
-var buildDataAndSpeak = function(data,callback,config)
+var buildDataAndSpeak = function(data,callback,config,SARAH)
 {
   var txt="";
   var content="";
@@ -531,11 +535,12 @@ var buildDataAndSpeak = function(data,callback,config)
   advice=buildAdvice();
   console.log(txt);
   if (data.conseil=="1")
-	callback({'tts': advice});
+	SARAH.speak(advice);
   else if (config.advice=="1")
-	callback({'tts': txt +"." + advice});
+	SARAH.speak(txt +"." + advice);
   else
-    callback({'tts': txt});
+    SARAH.speak(txt);
+  callback();
   return 0;
 }
 

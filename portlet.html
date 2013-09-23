@@ -1,7 +1,7 @@
 <% stylesheet('assets/'+key+'/portlet.css') %>
 <% 
   var netatmo2 = SARAH.ConfigManager.getModule(key); 
-  var info = netatmo2.getBasic(SARAH.ConfigManager.getConfig()); 
+  var info = netatmo2.getBasic(SARAH.ConfigManager.getConfig(), SARAH); 
 %>
 <div class="logo">
   <a href="sarah/<%=key%>?capteur=-1&mode=-1" class="ajax"><img src="/assets/<%=key%>/images/netatmo.jpg"></a>
