@@ -1,12 +1,12 @@
 {
   "modules" : { 
-    "netatmo"  : {
+    "netatmo2"  : {
       "description": "permet de remonter les infos du NETATMO",
       "version": "1.0",
-      "email": "",
-      "password": "",
-      "id": "",
-      "secret": "",
+      "email":"",
+      "password":"",
+      "id":"",
+      "secret":"",
 	  "advice": "1",
 	  "min_temp": "18",
 	  "max_temp": "23",

@@ -1,5 +1,5 @@
-﻿<grammar version="1.0" xml:lang="fr-FR" mode="voice" root="rulenetatmo" xmlns="http://www.w3.org/2001/06/grammar" tag-format="semantics/1.0">
-  <rule id="rulenetatmo" scope="public">
+﻿<grammar version="1.0" xml:lang="fr-FR" mode="voice" root="rulenetatmo2" xmlns="http://www.w3.org/2001/06/grammar" tag-format="semantics/1.0">
+  <rule id="rulenetatmo2" scope="public">
     <example>Sarah Quels sont les temperatures ?</example>
     <tag>out.action=new Object();out.action.mode="-1";out.action.init="0";out.action.capteur="-1";out.action.conseil="0";</tag>
     <item>Sarah
@@ -55,6 +55,6 @@
 		  </one-of>
 		</item>
 	</item>
-    <tag>out.action._attributes.uri="http://127.0.0.1:8080/sarah/netatmo";</tag>
+    <tag>out.action._attributes.uri="http://127.0.0.1:8080/sarah/netatmo2";</tag>
   </rule> 
 </grammar>

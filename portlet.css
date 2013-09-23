@@ -1,40 +1,40 @@
 
-.plugin-gridster.netatmo .logo,
-.plugin-gridster.netatmo .text {
+.plugin-gridster.netatmo2 .logo,
+.plugin-gridster.netatmo2 .text {
   height: 100%;
   position: absolute;
   top: 0;
 }
 
-.plugin-gridster.netatmo .logo {
+.plugin-gridster.netatmo2 .logo {
   background: #33A3EC;
   left: 0; width: 35%; 
 }
 
-.plugin-gridster.netatmo .logo .ajax {
+.plugin-gridster.netatmo2 .logo .ajax {
   display: block;
   margin: 30px auto;
   text-align: center;
 }
 
-.plugin-gridster.netatmo .text {
+.plugin-gridster.netatmo2 .text {
   background: #FFFFFF;
   right: 0; width: 65%; 
 }
-.plugin-gridster.netatmo .text .title {
+.plugin-gridster.netatmo2 .text .title {
   font-size: 22px; 
   line-height: 22px;
   font-weight: bold;
 }
-.plugin-gridster.netatmo .text .author {
+.plugin-gridster.netatmo2 .text .author {
   font-size: 12px;
   text-align: right;
   width: 90%
 }
-.plugin-gridster.netatmo .text .status {
+.plugin-gridster.netatmo2 .text .status {
   font-size: 11px;
   line-height: 11px;  
 }
-.plugin-gridster.netatmo .text .status img {
+.plugin-gridster.netatmo2 .text .status img {
   vertical-align: center;
 }

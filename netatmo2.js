@@ -1,3 +1,15 @@
+/***************************************************
+  Netatmo2 Plugin For SARAH
+  Author: Alban Vidal-Naquet (albanvn@gmail.com)
+  Date: 29/09/2013
+  File: netatmo2.js
+ ***************************************************/
+
+//////////////////////////////////////////////////////
+// TODO LIST:
+// Manager a group of device: "Interieur": "1-3", "Exterieur": "0", "Other": "4-8", "All": "0-8"
+//////////////////////////////////////////////////////
+
 // Netatmo URL
 var gs_token_url = 'http://api.netatmo.net/oauth2/token';
 var gs_device_url = 'http://api.netatmo.net/api/getuser?access_token=';
@@ -16,7 +28,7 @@ var g_names;
 var g_mod=0;
 var g_req=0;
 var g_skip_empty=1;
-var g_netatmoxmlfile="netatmo.xml";
+var g_netatmoxmlfile="netatmo2.xml";
 // Sarah advice and message
 var gs_msg_advice_allok="Rien à signaler de particulier";
 var gs_msg_advice_synhabitat="Voici le bilan de l'habitat:";
@@ -92,7 +104,7 @@ var init_callback=function(opts)
 exports.init = function (SARAH)
 {
   var config=SARAH.ConfigManager.getConfig();
-  config = config.modules.netatmo;
+  config = config.modules.netatmo2;
   if (!config.email || !config.password || !config.id || !config.secret)
   {
 	SARAH.speak(g_errsettings);
@@ -108,7 +120,7 @@ exports.init = function (SARAH)
 /////////////////////
 exports.action = function(data, callback, config, SARAH) 
 {
-  var config = config.modules.netatmo;
+  var config = config.modules.netatmo2;
   
   if (!config.email || !config.password || !config.id || !config.secret)
     return callback({'tts': g_errsettings});
@@ -121,12 +133,13 @@ exports.action = function(data, callback, config, SARAH)
 /////////////////////
 var getBasic = function(config)
 {
-  var config = config.modules.netatmo;
+  var config = config.modules.netatmo2;
   if (!config.email || !config.password || !config.id || !config.secret)
     return "error";
   var data={};
   data.init=2;
   var info={};
+  info.connexion=g_connexion;
   info.names=g_names;
   info.icon=g_iconbattery;
   getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, init_callback, config);
@@ -194,6 +207,7 @@ var parseToken = function(body, data, callback, config)
 	g_token = json.access_token;
 	g_expiresin = json.expires_in;
 	g_refresh_token = json.refresh_token;
+	g_connexion=1;
     device_list_url=gs_device_list_url+g_token;
     getURL(device_list_url, data, callback, config, parseDeviceList, 0);
 	return 0;
@@ -250,7 +264,7 @@ var parseDeviceList = function(body, data, callback, config, arg)
 	}
 	else if (data.init==1)
 	{
-	  // Update Netatmo.xml with netatmo settings parameters
+	  // Update Netatmo2.xml with netatmo settings parameters
 	  var fs   = require('fs');
 	  var file = __dirname + "\\" + g_netatmoxmlfile;
 	  var xml  = fs.readFileSync(file,'utf8');
