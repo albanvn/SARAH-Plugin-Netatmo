@@ -1,22 +1,18 @@
-
 .plugin-gridster.netatmo2 .logo,
 .plugin-gridster.netatmo2 .text {
   height: 100%;
   position: absolute;
   top: 0;
 }
-
 .plugin-gridster.netatmo2 .logo {
   background: #33A3EC;
   left: 0; width: 35%; 
 }
-
 .plugin-gridster.netatmo2 .logo .ajax {
   display: block;
   margin: 30px auto;
   text-align: center;
 }
-
 .plugin-gridster.netatmo2 .text {
   background: #FFFFFF;
   right: 0; width: 65%; 
@@ -35,6 +31,30 @@
   font-size: 11px;
   line-height: 11px;  
 }
+.plugin-gridster.netatmo2 .level
+{
+	height: 11px;
+	width: 80px;
+	float: left;
+	font-size: 11px;
+	line-height: 11px;
+	margin:1px;
+}
+.plugin-gridster.netatmo2 .redbar
+{
+	width: 30px;
+	height: 90%;
+	background: red;
+	float:right;
+	border:solid 1px black;
+	color: white;
+	text-align:center;
+}
+.plugin-gridster.netatmo2 .greenbar
+{
+	height: 100%;
+	background: green;
+}
 .plugin-gridster.netatmo2 .text .status img {
-  vertical-align: center;
+  vertical-align: baseline;
 }

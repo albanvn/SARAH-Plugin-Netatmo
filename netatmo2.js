@@ -7,8 +7,10 @@
 
 //////////////////////////////////////////////////////
 // TODO LIST:
-// Manager a group of device: "Interieur": "1-3", "Exterieur": "0", "Other": "4-8", "All": "0-8"
+// -Manage a group of device: "Interieur": "1-3", "Exterieur": "0", "Other": "4-8", "All": "0-8"
+// -Check variation CO2 (chute) pour aération...
 //////////////////////////////////////////////////////
+
 
 // Netatmo URL
 var gs_token_url = 'http://api.netatmo.net/oauth2/token';
@@ -23,23 +25,26 @@ var g_refresh_token = "";
 var g_values;
 var g_types;
 var g_lvlbattery;
-var g_iconbattery;
+var g_batt;
 var g_names;
 var g_mod=0;
 var g_req=0;
 var g_skip_empty=1;
 var g_netatmoxmlfile="netatmo2.xml";
+const gs_batteryhigh=6000;
+const gs_batterylow=3500;
 // Sarah advice and message
 var gs_msg_advice_allok="Rien à signaler de particulier";
 var gs_msg_advice_synhabitat="Voici le bilan de l'habitat:";
 var g_advice_start="Dans:"
-var g_air=new Array(4);
+var g_air=new Array(5);
 var g_advice_air=new Array
 					(
-						"la qualité de l'air est moyenne, si vous avez le temps, penser à aérer...",
-						"la qualité de l'air est modérée, il faudrait aérer...",
-						"la qualité de l'air est médiocre, il faut aérer rapidement...",
-						"la qualité de l'air est dangereuse, aérer tout de suite..."
+					    "la qualité de l'air est excellente,.",
+						"la qualité de l'air est bonne,.",
+						"la qualité de l'air est modérée, si vous avez le temps, pensez à aérer,.",
+						"la qualité de l'air est médiocre, il faut aérer rapidement,.",
+						"la qualité de l'air est dangereuse, aérer tout de suite,."
 					);
 var g_temp=new Array(4);
 var g_advice_temp=new Array
@@ -89,6 +94,18 @@ var g_errsettings="Les paramètre du pleug ine Nette atmo sont incomplet, veuill
 var g_okletshavealook="Je me renseigne";
 var g_errornetatmosite="Impossible de joindre Netatmo";
 var g_allisfine="Rien à signaler de particulier";
+var g_advice_co2max="Le niveau maximum de CO2 à été dépassé, il faut aérer";
+var g_co2histo=new Array();
+var g_co2histosize=10;
+var g_lastalert=0;
+var g_lastalert_co2stable=0;
+var g_lastalert_co2down=0;
+var g_flag_co2dec=0;
+var g_co2dec_date=0;
+var g_co2stable_date=0;
+var g_flag_co2stable=0;
+// Alert duration: 1 hour
+var g_alertduration=60*60*1000;
 
 //////////////////////
 // EMPTY CALLBACK
@@ -108,13 +125,11 @@ exports.init = function (SARAH)
   if (!config.email || !config.password || !config.id || !config.secret)
   {
 	SARAH.speak(g_errsettings);
-	callback();
 	return ;
   }
   var data = {};
   data.init=1;
-  if (getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, init_callback, config, SARAH)!=0)
-    callback();
+  getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, init_callback, config, SARAH);
   return ;
 }
 
@@ -128,8 +143,23 @@ exports.action = function(data, callback, config, SARAH)
   if (!config.email || !config.password || !config.id || !config.secret)
     return SARAH.speak(g_errsettings);
   SARAH.speak(g_okletshavealook); 
+  data.silent=0;
+  if (data.init==4)
+    data.silent=1;
   if (getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, callback, config, SARAH)!=0)
     callback();
+}
+
+var fillInfo=function(connexion,names,values,batt)
+{
+  var info={};
+  
+  info.error=0;
+  info.names=names;
+  info.values=values;
+  info.connexion=connexion;
+  info.battery=batt;
+  return info;
 }
 
 /////////////////////
@@ -138,14 +168,17 @@ exports.action = function(data, callback, config, SARAH)
 var getBasic = function(config, SARAH)
 {
   var config = config.modules.netatmo2;
-  if (!config.email || !config.password || !config.id || !config.secret)
-    return "error";
   var data={};
-  data.init=2;
   var info={};
-  info.connexion=g_connexion;
-  info.names=g_names;
-  info.icon=g_iconbattery;
+  
+  data.init=2;
+  info=fillInfo(g_connexion,g_names,g_values,g_batt);
+  if (!config.email || !config.password || !config.id || !config.secret)
+  {
+    info.error=1;
+    return info;
+  }
+  // Refresh for the next time the netatmo data
   getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, init_callback, config, SARAH);
   return info;
 }
@@ -166,7 +199,8 @@ var getURL = function(url, data, callback, config, mycallback, arg, SARAH)
 					if (err || response.statusCode != 200) 
 					{
 					  console.log("getURL error:"+response.statusCode);
-					  callback({'tts': g_errornetatmosite});
+					  if (data.silent==0)
+					    SARAH.speak(g_errornetatmosite);
 					  return -1;
 					}
 					mycallback (body, data, callback, config, arg, SARAH);
@@ -196,7 +230,8 @@ var getToken = function(url, username, password, id, secret, data, callback, con
 				if (err || response.statusCode != 200) 
 				{
 					console.log("getToken error:"+response.statusCode);
-					SARAH.speak(g_errornetatmosite);
+					if (data.silent==0) 
+					  SARAH.speak(g_errornetatmosite);
 					return -1;
 				}
 				parseToken(body, data, callback, config, SARAH);
@@ -226,31 +261,36 @@ var parseDeviceList = function(body, data, callback, config, arg, SARAH)
 	g_names=new Array(json.body.devices.length*4);
 	g_types=new Array(json.body.devices.length*4);
 	g_lvlbattery=new Array(json.body.devices.length*4);
-	g_iconbattery=new Array(json.body.devices.length*4);
+	g_batt=new Array(json.body.devices.length*4);
+	g_co2histo=new Array(json.body.devices.length*4);
+	g_resume=new Array(json.body.devices.length*4);
 	g_mod=0;
     config_xml="";
 	// Extract devices and modules to an 1 dim array
 	for (i=0;i<json.body.devices.length;i++)
 	{
 	  config_xml+="		<item>"+json.body.devices[i].module_name+"<tag>out.action.capteur=\""+g_mod+"\";</tag></item>\n";
+	  g_co2histo[g_mod]=new Array();
 	  g_names[g_mod]=json.body.devices[i].module_name;
-	  g_types[g_mod++]=json.body.devices[i].type;
-	  g_lvlbattery[g_mod]=-1;
+	  g_types[g_mod]=json.body.devices[i].type;
+	  g_lvlbattery[g_mod++]=-1;
 	  for (j=0;j<json.body.devices[i].modules.length;j++)
 	  {
 	    for (k=0;k<json.body.modules.length;k++)
 			if (json.body.devices[i].modules[j]==json.body.modules[k]._id)
 			{
 				config_xml+="		<item>"+json.body.modules[k].module_name+"<tag>out.action.capteur=\""+g_mod+"\";</tag></item>\n";
-				g_lvlbattery[g_mod]=json.body.modules[k].battery_vp;
+				g_co2histo[g_mod]=new Array();
 				g_names[g_mod]=json.body.modules[k].module_name;
-				g_types[g_mod++]=json.body.modules[k].type;
+				g_types[g_mod]=json.body.modules[k].type;
+				g_lvlbattery[g_mod++]=json.body.modules[k].battery_vp;
 			}
 	  }
 	} 
 	// Create Data array (Temp, Pressure, Noise, Humidity, CO2
 	g_values=new Array(g_mod);
-	for (i=0;i<g_mod;i++) g_values[i]=new Array(5);
+	for (i=0;i<g_mod;i++) 
+		g_values[i]=new Array(5);
 	// Get Devices and modules info and save its
 	count=0
 	if (data.init==2 || data.init==3)
@@ -262,8 +302,10 @@ var parseDeviceList = function(body, data, callback, config, arg, SARAH)
 	  if (data.init==3)
 	  {
 	    var txt=buildBatteryAdvice();
-		if (txt=="") txt=g_allisfine;
-		callback({'tts': txt});
+		if (txt=="") 
+			txt=g_allisfine;
+		if (data.silent==0)
+		  SARAH.speak(txt);
 	  }
 	}
 	else if (data.init==1)
@@ -300,6 +342,7 @@ var parseMeasure = function(body, data, callback, config, mod, SARAH)
 	var json= JSON.parse(body);
     g_req++;
 	//console.log(mod+":"+body);
+	var co2=-1;
 	switch(g_types[mod])
 	{
 	  // Main netatmo device
@@ -309,6 +352,7 @@ var parseMeasure = function(body, data, callback, config, mod, SARAH)
 		g_values[mod][2]=json.body[0].value[0][2]; // Humidity
 		g_values[mod][3]=json.body[0].value[0][3]; // Pressure
 		g_values[mod][4]=json.body[0].value[0][4]; // Noise
+		co2=json.body[0].value[0][1];
 		break;
       // External netatmo device
 	  case "NAModule1":
@@ -325,13 +369,103 @@ var parseMeasure = function(body, data, callback, config, mod, SARAH)
 		g_values[mod][2]=json.body[0].value[0][2]; // Humidity
 		g_values[mod][3]=0; // ignored
 		g_values[mod][4]=0; // ignored
+		co2=json.body[0].value[0][1];
 		break;
 	}
+	if (co2!=-1)
+	{
+		// Save current co2 in co2 histo
+		var size=g_co2histo[mod].length;
+		// If array is full, then shift the first item
+		if (size==g_co2histosize)
+		  g_co2histo.shift();
+		// Save new item
+		g_co2histo[mod].push(co2);
+	}
+	// Share netatmo info...
+	SARAH.context.Netatmo2Info=fillInfo(g_connexion, g_names, g_values, g_batt);
+	var advice="";
     if (g_req==g_mod)
 	{
-	  buildDataAndSpeak(data,callback,config, SARAH);
-	}
+		 advice=buildSentenceAndSpeak(data,callback,config, SARAH);
+		 if (data.init==4 && advice!="")
+		 {
+		   now=new Date();
+		   // For CRON...
+
+/*		   
+TODO NOW FOR CRON
+		   for (i=0;i<g_mod;i++)
+				AnalyseCO2(i);
+		   
+		   if (g_flag_co2stable==1 && now.getTime()>=(g_lastalert_co2stable+g_alertduration))
+		   {
+		     SARAH.speak(advice_co2stable);
+		     g_lastalert_co2stable=now;
+		   }
+		   if (g_flag_co2down==1 && now.getTime()>=(g_lastalert_co2down+g_alertduration))
+		   {
+		     SARAH.speak(advice_co2down);
+		     g_lastalert_co2down=now;
+		   }
+		   if (advice!=null && now.getTime()>=(g_lastalert+g_alertduration))
+		   {
+		     SARAK.speak(advice);
+		     g_lastalert=now;
+		   }
+*/		   
+		   callback();
+		 } 
+    }
 	return 0;
+}
+
+var AnalyseCO2=function(mod)
+{
+    var now=new Date();
+	var flag_dec=0;
+	var last=-1;
+	for (i=0;i<g_co2histo[mod].length;i++)
+	{
+	 if (last!=-1)
+	   if (g_co2histo[mod][i]<last)
+		 flag_dec+=i;
+	 if ((i%2)==1)
+	   sum+=g_co2histo[mod][i];
+	 else
+	   sum-=g_co2histo[mod][i];
+	 last=g_co2histo[mod][i];
+	}
+	if (flag_dec>30)
+	{ 
+	 if (g_co2dec_date==0)
+	 {
+	   g_flag_co2dec=1;
+	   g_co2dec_date=now;
+	   console.log("Start co2 down at"+g_co2dec_date);
+	 }
+	}
+	else
+	{
+	 g_flag_co2dec=0;
+	 g_co2dec_date=0;
+	}
+	if (i%2==0)
+	 sum+=last;
+	if (sum<50 && sum>-50)
+	{
+	 if (g_co2stable_date==0)
+	 {
+	   g_flag_co2stable=1;
+	   g_co2stable_date=now;
+	   console.log("Start co2 stable at"+g_co2stable_date);
+	 }
+	}
+	else
+	{
+	  g_flag_co2stable=0;
+	  g_co2stable_date=0;
+	}
 }
 
 var getUnit = function(index)
@@ -365,17 +499,26 @@ var isPertinent = function(module, index)
   return false;
 }
 
-var getAdvice = function(config, type, mode, section, value)
+var getAdvice = function(data, config, type, mode, section, value)
 {
   if (parseInt(config.ignore_external)==1 && type=="NAModule1") 
     return;
   switch(mode)
   {
     case 1: // Air quality
-		if (value>=400 && value<=600) g_air[0]+=section+",";
-		else if (value>600 && value<=800) g_air[1]+=section+",";
-		else if (value>800 && value<=1000)  g_air[2]+=section+",";
-		else if (value>1000) g_air[3]+=section+",";
+	    if (data.init==4)
+		{
+		   // For CRON
+		   if (value>=config.max_co2) g_air[4]+=section+",";
+		}
+		else
+		{
+		  if (value<400) g_air[0]+=section+",";
+		  else if (value>=400 && value<=600) g_air[1]+=section+",";
+		  else if (value>600 && value<=800) g_air[2]+=section+",";
+		  else if (value>800 && value<=1000)  g_air[3]+=section+",";
+		  else if (value>1000) g_air[4]+=section+",";
+		}
 		break;
 	case 0: // Temperature
 	    if (value>parseInt(config.max_temp)) g_temp[0]+=section+",";
@@ -395,25 +538,19 @@ var checkBattery=function(type, section, index)
 {
   if (type=="NAMain")
   {
-    g_iconbattery[index]="";
+    g_batt[index]=-1;
     return;
   }
   // This is experimental: I don't know the high and low limit mV of the Netatmo batteries
   // <3000 : batteries near empty ?
-  else if (g_lvlbattery[index]<3000)
-  {
-    g_battery[0]+=section+",";
-    g_iconbattery[index]="0";
-  }
-  // <5000 : batteries half full ?
-  else if (g_lvlbattery[index]<5000)
-  {
-    g_battery[1]+=section+",";
-    g_iconbattery[index]="50";
-  }
+  if (g_lvlbattery[index]<gs_batterylow)
+    g_batt[index]=0;
   else
-  // >5000 : batteries full ?
-    g_iconbattery[index]="100";
+    g_batt[index]=Math.round((g_lvlbattery[index]-gs_batterylow)*100/(gs_batteryhigh-gs_batterylow));
+  if (g_batt<20)
+    g_battery[0]+=section+",";
+  else if (g_batt<50)
+    g_battery[1]+=section+",";
 }
 
 var resetAdvice=function()
@@ -431,12 +568,18 @@ var resetAdvice=function()
   return 0;
 }
 
-var buildAdvice=function()
+var buildAdvice=function(data)
 {
   var advice="";
-  for (i=0;i<g_air.length;i++)
-    if (g_air[i]!="")
-	  advice+=g_advice_start+g_air[i]+g_advice_air[i];
+  if (data.init==4)
+  {
+    if (g_air[4]!="")
+	  advice+=g_advice_start+g_air[4]+g_advice_co2max;
+  }
+  else
+    for (i=0;i<g_air.length;i++)
+      if (g_air[i]!="")
+	    advice+=g_advice_start+g_air[i]+g_advice_air[i];
   for (i=0;i<g_temp.length;i++)
     if (g_temp[i]!="")
 	  advice+=g_advice_start+g_temp[i]+g_advice_temp[i];
@@ -460,7 +603,7 @@ var buildBatteryAdvice=function()
   return advice;
 }
 
-var buildDataAndSpeak = function(data,callback,config,SARAH)
+var buildSentenceAndSpeak = function(data,callback,config,SARAH)
 {
   var txt="";
   var content="";
@@ -487,7 +630,7 @@ var buildDataAndSpeak = function(data,callback,config,SARAH)
 			    if (isPertinent(g_types[i],j)) 
 				{
 				  content+=getTitle(j)+" "+g_values[i][j]+" "+getUnit(j)+", ";
-   			      getAdvice(config, g_types[i],j, section, g_values[i][j]);
+   			      getAdvice(data, config, g_types[i],j, section, g_values[i][j]);
 				}
 			  break;
 			default:
@@ -495,7 +638,7 @@ var buildDataAndSpeak = function(data,callback,config,SARAH)
 			  if (isPertinent(g_types[i],mode))
 			  {
 			    content+=getTitle(mode)+" "+g_values[i][mode]+" "+getUnit(mode)+", ";
-   			    getAdvice(config, g_types[i],mode, section, g_values[i][mode]);
+   			    getAdvice(data, config, g_types[i],mode, section, g_values[i][mode]);
 			  }
 			  break;
 		  }
@@ -515,7 +658,7 @@ var buildDataAndSpeak = function(data,callback,config,SARAH)
 			if (isPertinent(g_types[capteur],j))
 			{
 			  content+=getTitle(j)+" "+g_values[capteur][j]+" "+getUnit(j)+", ";
-  			  getAdvice(config, g_types[capteur],j, section, g_values[capteur][j]);
+  			  getAdvice(data, config, g_types[capteur],j, section, g_values[capteur][j]);
 			}
 		  break;
 		default:
@@ -523,7 +666,7 @@ var buildDataAndSpeak = function(data,callback,config,SARAH)
 		  if (isPertinent(g_types[capteur],mode)) 
 		  {
 		    content+=getTitle(mode)+" "+g_values[capteur][mode]+" "+getUnit(mode)+", ";
-			getAdvice(config, g_types[capteur],mode, section, g_values[capteur][mode]);
+			getAdvice(data, config, g_types[capteur],mode, section, g_values[capteur][mode]);
 		  }
 		  break;
 	  }
@@ -532,16 +675,19 @@ var buildDataAndSpeak = function(data,callback,config,SARAH)
 	  content="";
 	  break;
   }
-  advice=buildAdvice();
-  console.log(txt);
-  if (data.conseil=="1")
-	SARAH.speak(advice);
-  else if (config.advice=="1")
-	SARAH.speak(txt +"." + advice);
-  else
-    SARAH.speak(txt);
-  callback();
-  return 0;
+  advice=buildAdvice(data);
+  //console.log(txt);
+  if (data.silent==0)
+  {
+	if (data.conseil=="1")
+	  SARAH.speak(advice);
+    else if (config.advice=="1")
+	  SARAH.speak(txt +"." + advice);
+    else
+      SARAH.speak(txt);
+    callback();
+  }
+  return advice;
 }
 
 // For Debug purpose only

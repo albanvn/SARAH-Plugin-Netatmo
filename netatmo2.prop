@@ -13,6 +13,7 @@
 	  "min_humidity": "20",
 	  "max_humidity": "70",
 	  "max_noise": "60",
+	  "max_co2": "1000",
 	  "ignore_external": "1"
 	  }
   }

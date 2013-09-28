@@ -4,17 +4,19 @@
   var info = netatmo2.getBasic(SARAH.ConfigManager.getConfig(), SARAH); 
 %>
 <div class="logo">
-  <a href="sarah/<%=key%>?capteur=-1&mode=-1" class="ajax"><img src="/assets/<%=key%>/images/netatmo.png"></a>
+  <a href="sarah/<%=key%>?capteur=-1&mode=-1" class="ajax"><img src="/assets/<%=key%>/images/netatmo.png" title="Interroge Netatmo"></a>
 </div>
 <div class="text">
-  <br/><span class="title">Netatmo2</span>
+
+<br/><span class="title">Netatmo2</span>
   <div class="author">by AVN</div>
-  <span class="status">Connexion:
+  <span class="status">Logged:</span>
   <% if (info.connexion==1) { %>
-    <span class="status"><img src="/assets/<%=key%>/images/alive.png" title=""></span>
-    <% for (i=0;i<info.names.length;i++) { if (info.icon[i]!="") {%>
-    <br/><span class="status"><%= info.names[i] %> : <img src="/assets/<%=key%>/images/charge_<%= info.icon[i] %>.png" title=""></span>
-  <% } } } else { %>
-    <span class="status">error</span>
+    <span class="status"><img src="/assets/<%=key%>/images/ok.png" title="" width="15px"></span>
+    <% for (i=0;i<info.names.length;i++) { if (info.battery[i]!=-1) {%>
+    <div class="level"><%= info.names[i] %> <div class="redbar"><div class="greenbar" style="width:<%= info.battery[i]*30/100 %>px;"><%=info.battery[i]%>%</div></div></div>
+  <% } } %>
+  <% } else { %>
+    <span class="status"><img src="/assets/<%=key%>/images/ko.png" title=""></span>
   <% } %>
 </div>
