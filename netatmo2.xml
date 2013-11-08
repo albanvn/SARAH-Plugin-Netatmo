@@ -8,7 +8,7 @@
 		<tag>out.action.capteur="-1";</tag>
 		<tag>out.action.conseil="0";</tag>
 		<one-of>
-		  <item>quelles sont les donnés climatiques de la maison</item>
+		  <item>quelles sont les données climatiques de la maison</item>
 		  <item>combien fait-il<tag>out.action.mode="0";</tag></item>
 		  <item>vérifie la qualité de l'air <tag>out.action.capteur="2";</tag></item>
 		  <item>vérifie la température<tag>out.action.capteur="0";</tag></item>

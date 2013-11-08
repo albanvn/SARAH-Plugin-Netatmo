@@ -10,13 +10,13 @@
 
 <br/><span class="title">Netatmo2</span>
   <div class="author">by AVN</div>
-  <span class="status">Logged:</span>
+  <span class="status">Connexion:
   <% if (info.connexion==1) { %>
-    <span class="status"><img src="/assets/<%=key%>/images/ok.png" title="" width="15px"></span>
+    <img src="/assets/<%=key%>/images/ok.png" title="" width="15" height="15"></span>
     <% for (i=0;i<info.names.length;i++) { if (info.battery[i]!=-1) {%>
     <div class="level"><%= info.names[i] %> <div class="redbar"><div class="greenbar" style="width:<%= info.battery[i]*30/100 %>px;"><%=info.battery[i]%>%</div></div></div>
   <% } } %>
   <% } else { %>
-    <span class="status"><img src="/assets/<%=key%>/images/ko.png" title=""></span>
+    <img src="/assets/<%=key%>/images/ko.png" title="" width="15"></span>
   <% } %>
 </div>

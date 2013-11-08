@@ -11,7 +11,6 @@
 // -Check variation CO2 (chute) pour aération...
 //////////////////////////////////////////////////////
 
-
 // Netatmo URL
 var gs_token_url = 'http://api.netatmo.net/oauth2/token';
 var gs_device_url = 'http://api.netatmo.net/api/getuser?access_token=';
@@ -44,12 +43,12 @@ var g_advice_air=new Array
 						"la qualité de l'air est bonne,.",
 						"la qualité de l'air est modérée, si vous avez le temps, pensez à aérer,.",
 						"la qualité de l'air est médiocre, il faut aérer rapidement,.",
-						"la qualité de l'air est dangereuse, aérer tout de suite,."
+						"la qualité de l'air est nocive, aérer tout de suite,."
 					);
 var g_temp=new Array(4);
 var g_advice_temp=new Array
 				(
-					"la tempèrature est élevé, veillez à moins chauffer.",
+					"la tempèrature est élevé, veillez à moins chauffer ou à aérer.",
 					"la tempèrature est basse, veillez à plus chauffer."
 				);
 var g_humidity=new Array(4);
@@ -203,7 +202,7 @@ var getURL = function(url, data, callback, config, mycallback, arg, SARAH)
 					    SARAH.speak(g_errornetatmosite);
 					  return -1;
 					}
-					mycallback (body, data, callback, config, arg, SARAH);
+					return mycallback (body, data, callback, config, arg, SARAH);
 				}
 			);
 	return -2;
@@ -234,7 +233,7 @@ var getToken = function(url, username, password, id, secret, data, callback, con
 					  SARAH.speak(g_errornetatmosite);
 					return -1;
 				}
-				parseToken(body, data, callback, config, SARAH);
+				return parseToken(body, data, callback, config, SARAH);
 			});
 	return -2;
 }
@@ -358,17 +357,17 @@ var parseMeasure = function(body, data, callback, config, mod, SARAH)
 	  case "NAModule1":
 		g_values[mod][0]=json.body[0].value[0][0]; // Temperature
 		g_values[mod][2]=json.body[0].value[0][2]; // Humidity
-		g_values[mod][1]=0; // ignored
-		g_values[mod][3]=0; // ignored
-		g_values[mod][4]=0; // ignored 
+		g_values[mod][1]=-1; // ignored
+		g_values[mod][3]=-1; // ignored
+		g_values[mod][4]=-1; // ignored 
 		break;
 	  // 'Add on' netatmo device
 	  case "NAModule4":
 		g_values[mod][0]=json.body[0].value[0][0]; // Temperature
 		g_values[mod][1]=json.body[0].value[0][1]; // CO2
 		g_values[mod][2]=json.body[0].value[0][2]; // Humidity
-		g_values[mod][3]=0; // ignored
-		g_values[mod][4]=0; // ignored
+		g_values[mod][3]=-1; // ignored
+		g_values[mod][4]=-1; // ignored
 		co2=json.body[0].value[0][1];
 		break;
 	}
