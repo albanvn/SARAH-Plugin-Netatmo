@@ -7,12 +7,16 @@
 	Vous pourrez alors interroger SARAH sur les informations relevées par vos balise NETATMO<BR><BR>
 	Les autres paramètres du plugin NETATMO à configurer sont:<BR>
 	<ul>
-	  <li><b>advice</b>: permet d'activer (=1) ou de désactiver (=0) les conseils de SARAH après interrogation des balises lors du bilan de l'habitat ou remonté vocale de valeurs.</li>
-	  <li><b>min_temp/max_temp</b>: seuil de température min/max qui déclenche un conseil de SARAH</li>
-	  <li><b>min_humidity/max_humidity</b>: seuil de taux d'humidité min/max qui déclenche un conseil de SARAH</li>
-	  <li><b>max_noise</b>: seuil de bruit maximum qui déclenche un conseil de SARAH</li>
-	  <li><b>max_co2</b>: seuil de co2 maximum qui déclenche une alerte (disponible avec le plugin CRON pour Netatmo, SARAH-Plugin-NetatmoCron)</li>
-	  <li><b>ignore_external</b>: permet d'ignorer les paramètres température/humidité/bruit remonté par la balise exterieur NETATMO lors des conseils</li>
+	  <li><b>advice_odo</b>: permet d'activer (=1) ou de désactiver (=0) les conseils de SARAH après interrogation des balises lors du bilan de l'habitat ou remontées vocales de valeurs.</li>
+	  <li><b>min_temp/max_temp</b>: seuil de température min/max qui déclenche une recommandation de SARAH (champ vide=pas de seuil),</li>
+	  <li><b>min_exttemp/max_ettemp</b>: seuil de température exterieure min/max qui déclenche une recommandation de SARAH (champ vide=pas de seuil),</li>
+	  <li><b>min_humidity/max_humidity</b>: seuil de taux d'humidité min/max qui déclenche une recommandation de SARAH (champ vide=pas de seuil),</li>
+	  <li><b>min_exthumidity/max_exthumidity</b>: seuil de taux d'humidité exterieure min/max qui déclenche une recommandation de SARAH (champ vide=pas de seuil),</li>
+	  <li><b>max_noise</b>: seuil de bruit maximum qui déclenche une recommandation de SARAH (champ vide=pas de seuil),</li>
+	  <li><b>max_co2</b>: seuil de co2 maximum qui déclenche une alerte (disponible avec le plugin CRON pour Netatmo, SARAH-Plugin-NetatmoCron) (champ vide=pas de seuil),</li>
+	  <li><b>co2_quality</b>: active (=1) ou désactive (=1) les recommandations de SARAH concernant le taux de CO2,</li>
+	  <li><b>freq_alert</b>: minutes minimum d'écart entre 2 annonces vocales de SARAH concernant les recommandations (fixé a 60 minutes par défaut),</li>
+	  <li><b>range_t1-range_t6</b>: permet de donner des plages horaires pour les recommandations de SARAH. Syntaxe:X-Y=HHMM-HHMM ou X et Y désignent la plage de jour durant lesquelles la plage horaire peut s'appliquer (0,1,2,3,4,5,6=dimance,lundi,mardi,mercredi,jeudi,vendredi,samedi) et HHMM l'heure de début et de fin de la plage horaire durant les jours.Par défault, SARAH vocalisera les jours de semaine entre 10 heures du matin et 23 heures et le week end entre 11 heures et 23 heures.</li>
 	</ul>
 	<BR><BR>
 	<h4><u>Voici un exemple non exaustif des commandes vocales reconnues par le plugin Netatmo dans SARAH:</u></h4>

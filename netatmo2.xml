@@ -41,7 +41,11 @@
 			  </one-of>
 			  <one-of>
 	<!-- Automatic Generation § -->
-    <!-- § Automatic Generation -->
+		<item>Le salon<tag>out.action.capteur="0";</tag></item>
+		<item>La terrasse<tag>out.action.capteur="1";</tag></item>
+		<item>La chambre<tag>out.action.capteur="2";</tag></item>
+		<item>L'entrée<tag>out.action.capteur="3";</tag></item>
+<!-- § Automatic Generation -->
 			<item>La maison<tag>out.action.capteur="-1";</tag></item>
 			  </one-of>
 			</item>

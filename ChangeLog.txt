@@ -7,6 +7,16 @@ SARAH-Plugin6Netatmo is a component of the open source projet SARAH (http://enca
 ChangeLog.txt
 -------------
 
+v1.5: 08/11/2013
+  -Add refresh token feature in netatmo request 
+  -Rename variable & constant in js
+  -Correct minor bug in js
+  -Add alarm on external temp/humidity
+  -Add 6 time range for alarm message
+  -Add netatmo data values monitoring (with kind of cron)
+  -Review index.html
+  -Correct bug on g_connexion var
+  
 v1.0: 27/09/2013
 
 -First release
