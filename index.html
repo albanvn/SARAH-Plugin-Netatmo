@@ -1,10 +1,14 @@
 <div id="Netatmo">  
 	<div class="span11">
 	Le plugin Netatmo2 permet d'interroger les sondes NETATMO à l'aide de SARAH.<BR><BR>
-	Pour cela, veuillez renseigner les paramètres du plugin Netatmo2 (compte NETATMO:email,mot de passe, id, secret).<BR>
+	Pour cela, veuillez renseigner les paramètres du plugin Netatmo2 (issu de votre compte NETATMO: <i>l'email du compte</i> et son <i>mot de passe</i>, <i>l'ID</i> et le <i>SECRET</i> provenant du l'application NETATMO crée et de son client ID et Client SECRET)<BR><BR>
+	<H4><b>Comment créer une application NETATMO et obtenir son Client ID et son Client SECRET ?</b></H4>
+	C'est très simple; Pour cela rendez vous via ce lien: <a href="http://dev.netatmo.com/dev/createapp">http://dev.netatmo.com/dev/createapp</a> sur le site NETATMO de création d'application. Si cela vous est demandé, logguez-vous avec les paramètres habituels de votre compte NETATMO. Une fois connecté, remplissez les 2 champs obligatoires (nom et description) du formulaire de création de l'application (vous pouvez laisser les autres champs vides). Cochez les conditions d'utilisations en bas du formulaire et validez. Sur la page suivante <b>vous récupèrerez les valeurs des champs Client ID et Client SECRET que vous renseignerez dans les paramètres du plugin Netatmo2</b> avec l'adresse du compte NETATMO et le mot de passe associé.<BR><BR>
+	<H4><b>Fonctionnement</b></H4>
 	Une fois la connexion effectuée avec le site de données de NETATMO, le fichier contenant les commande vocale reconnues netatmo2.xml sera mis à jour avec
 	les paramètres de votre(vos) station(s) NETATMO (c'est à dire personnalisé avec le nom de chacune de vos balise NETATMO tels que configurés sur le site de NETATMO)<BR>
 	Vous pourrez alors interroger SARAH sur les informations relevées par vos balise NETATMO<BR><BR>
+	<H4><b>Configuration du plugin en détails</b></H4>
 	Les autres paramètres du plugin NETATMO à configurer sont:<BR>
 	<ul>
 	  <li><b>advice_odo</b>: permet d'activer (=1) ou de désactiver (=0) les conseils de SARAH après interrogation des balises lors du bilan de l'habitat ou remontées vocales de valeurs.</li>
@@ -18,8 +22,9 @@
 	  <li><b>freq_alert</b>: minutes minimum d'écart entre 2 annonces vocales de SARAH concernant les recommandations (fixé a 60 minutes par défaut),</li>
 	  <li><b>range_t1-range_t6</b>: permet de donner des plages horaires pour les recommandations de SARAH. Syntaxe:X-Y=HHMM-HHMM ou X et Y désignent la plage de jour durant lesquelles la plage horaire peut s'appliquer (0,1,2,3,4,5,6=dimance,lundi,mardi,mercredi,jeudi,vendredi,samedi) et HHMM l'heure de début et de fin de la plage horaire durant les jours.Par défault, SARAH vocalisera les jours de semaine entre 10 heures du matin et 23 heures et le week end entre 11 heures et 23 heures.</li>
 	</ul>
-	<BR><BR>
-	<h4><u>Voici un exemple non exaustif des commandes vocales reconnues par le plugin Netatmo dans SARAH:</u></h4>
+	<BR>
+	<H4><b>Commandes reconnues par SARAH</b></H4>
+	Voici un exemple non exaustif des commandes vocales reconnues par le plugin Netatmo dans SARAH:
       <ul></b>
 		<li>Combien fait-il ?</li>
 		<li>Vérifie la qualité de l'air/le taux d'humidité/la température</li>
