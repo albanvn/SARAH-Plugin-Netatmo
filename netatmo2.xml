@@ -21,6 +21,9 @@
 		  <item>Fais un bilan de l'habitat<tag>out.action.conseil="1";</tag></item>
 		  <item>Quelle est l'état des batteries Nette atmo<tag>out.action.init="3";</tag></item>
 		  <item>état des batteries Nette atmo<tag>out.action.init="3";</tag></item>
+		  <item>Quel est l'état de vigilance météo France<tag>out.action.init="99";</tag></item>
+		  <item>Quel est l'état de vigilance<tag>out.action.init="99";</tag></item>
+		  <item>Alerte météo france<tag>out.action.init="99";</tag></item>
 		  <item>
 			<one-of>
 			  <item>Quelle est</item>

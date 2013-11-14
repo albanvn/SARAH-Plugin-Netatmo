@@ -2,11 +2,19 @@ SARAH-Plugin-Netatmo
 --------------------
 by Alban Vidal-Naquet (albanvn@gmail.com)
 
-SARAH-Plugin6Netatmo is a component of the open source projet SARAH (http://encausse.wordpress.com/s-a-r-a-h/).
+SARAH-Plugin-Netatmo is a component of the open source projet SARAH (http://encausse.wordpress.com/s-a-r-a-h/).
+This plugin get the datas recorded by the NETATMO devices.
 
 ChangeLog.txt
 -------------
 
+v1.6: XX/XX/2013
+  -Add custom localisation (files: customloc.js, localisation_fr.loc) and update all netatmo2.js to call localisation function
+  -Add meteo france vigilance statut for given zipcode (in plugin settings)
+  -Correct bug on debug function
+  -Add sentence "Quel est l'état de vigilance" and "Quel est l'état de vigilance de Météo France" and "Alerte météo france" in netatmo2.xml
+  -Update index.html documentation
+  
 v1.5: 08/11/2013
   -Add refresh token feature in netatmo request 
   -Rename variable & constant in js

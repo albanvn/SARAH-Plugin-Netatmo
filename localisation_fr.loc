@@ -1,0 +1,22 @@
+﻿ERRSETTINGS#Les paramètre du pleug ine Nette atmo sont incomplet, veuillez les renseigner !
+ERRORNETATMOSITE#Impossible de joindre le site Netatmo
+OKLETSHAVEALOOK#Je me renseigne
+ADVICE_ALLOK#Rien à signaler de particulier
+ADVICE_SYNHABITAT#Voici le bilan de l'habitat:
+NODATA_MSG#.Aucune donnée pour %SECTION%
+ALLISFINE#Rien à signaler de particulier.
+ADVICE_CO2MAX#Dans %WHERE%, le niveau maximum de CO2 à été dépassé, il faut aérer.
+CO2STABILIZE#Dans %WHERE%, la qualité de l'air est maintenant stabilisé à %VALUE% %UNIT%
+CO2QUICKUP#Dans %WHERE%, attention le niveau de CO2 augmente rapidement.
+CO2NOWFINE#Dans %WHERE%, le niveau de CO2 est maintenant redevenu normal.
+AIRQUALITYCOMMENT#Dans %WHERE%, la qualité de l'air est excellente,.~Dans %WHERE%, la qualité de l'air est bonne,.~Dans %WHERE%, la qualité de l'air est modérée, si vous avez le temps, pensez à aérer,.~Dans %WHERE%, la qualité de l'air est médiocre, il faut aérer rapidement,.~Dans %WHERE%, la qualité de l'air est nocive, aérer tout de suite,.
+TEMPCOMMENT#Dans %WHERE%, la température est élevé, veillez à moins chauffer ou à aérer.~Dans %WHERE%, la température est basse, veillez à plus chauffer.
+TEMPEXTCOMMENT#Dans %WHERE%, la température extérieur est au dessus du seuil maximum.~Dans %WHERE%, la température extérieur est au dessous du seuil minimum.
+HUMIDITYCOMMENT#Dans %WHERE%, l'humidité est élevé, veillez à déshumidifier.~Dans %WHERE%, l'humidité est basse, veillez à humidifier.
+HUMIDITYEXTCOMMENT#Dans %WHERE%, l'humidité extérieur est au dessus du seuil maximum.~Dans %WHERE%, l'humidité extérieur est au dessous du seuil minimum.
+NOISECOMMENT#Dans %WHERE%, il y a beaucoup de bruit, réduisez le.
+BATTERYCOMMENT#Dans %WHERE%, la batterie est presque vide, veillez à la remplacer~Dans %WHERE%, la batterie est à moitié vide
+UNITSCOMMENT#degré~p.p.m.~pour cent~millibarres~décibels
+UNITSTITLE#Température~C.O.2.~Humidité~Préssion~Bruit
+NOZIPCODEDEFINED#Vous n'avez pas paramètré de code postal pour l'alerte vigilance meteo france.
+WATCHOUTVIGILANCE#Attention si vous sortez aujourd'hui: %TXT%  
