@@ -34,7 +34,7 @@ const gs_maxco2upvariation=200;
 const gs_minco2fine=500;
 const gs_minco2downvariation=-100;
 
-var loc=require('../customloc.js').init(__dirname);
+var loc=require('./customloc.js').init(__dirname);
 
 ////////////////
 // Variables
