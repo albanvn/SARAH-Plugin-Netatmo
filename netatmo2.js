@@ -149,7 +149,7 @@ var getBasic = function(config, SARAH, init)
     return info;
   }
   // Refresh for the next time the netatmo data
-  getVigilance(data,config,SARAH);
+  getVigilance(0, data,config,SARAH);
   getToken(gs_token_url, config.email, config.password, config.id, config.secret, data, config, SARAH);
   return info;
 }
