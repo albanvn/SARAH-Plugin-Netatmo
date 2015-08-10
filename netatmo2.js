@@ -15,10 +15,10 @@
 ////////////////
 // Constants
 // Netatmo URL
-const gs_token_url = 'http://api.netatmo.net/oauth2/token';
-const gs_device_url = 'http://api.netatmo.net/api/getuser?access_token=';
-const gs_device_list_url = 'http://api.netatmo.net/api/devicelist?access_token=';
-const gs_measure_url = 'http://api.netatmo.net/api/getmeasure?access_token=';
+const gs_token_url = 'https://api.netatmo.net/oauth2/token';
+const gs_device_url = 'https://api.netatmo.net/api/getuser?access_token=';
+const gs_device_list_url = 'https://api.netatmo.net/api/devicelist?access_token=';
+const gs_measure_url = 'https://api.netatmo.net/api/getmeasure?access_token=';
 const gs_urlvigilance="http://france.meteofrance.com/vigilance/Bulletin?ZONE="
 const gs_netatmoxmlfile="netatmo2.xml";
 
